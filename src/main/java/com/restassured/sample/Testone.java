@@ -1,6 +1,7 @@
 package com.restassured.sample;
 
 import io.restassured.RestAssured;
+import io.restassured.http.ContentType;
 import io.restassured.path.json.JsonPath;
 import io.restassured.specification.RequestSpecification;
 import io.restassured.response.Response;
@@ -9,6 +10,7 @@ import java.io.File;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.collections4.map.HashedMap;
 import org.json.simple.JSONObject;
 import org.junit.Test;
 
@@ -23,38 +25,48 @@ public class Testone {
 		
 		try {	
 		
-			  RestAssured.baseURI = "https://reqres.in/";	
+			  RestAssured.baseURI = "https://reqres.in/api";	
 			  
-			  String basePath = "api/users";
+			  String basePath = "users?page=2";
 			  
 			  RequestSpecification requestSpecification = RestAssured.given();
-			  
+		        
 			  Response response = requestSpecification.get(basePath);
 			  
 			  JsonPath jsonPath = response.jsonPath();
 			  
 			  List<Map<String, Object>> dataList = jsonPath.getList("data");
-			  
-			  boolean idFound = false;
-			  
+			
+			 boolean idFound = false;
+			
 			  for(Map<String, Object> user : dataList) {
 				  
-				  if(user.get("id").equals(182)) {
+				  if(user.get("id").equals(7)) {
 					  
-					  System.out.println("User with ID 182 : " + user);
+					  System.out.println("User with ID 7: " + user);
 					  
 					  idFound = true;
 					  
-					   break;
+					  break;				  
 				  }
+				  
+				  if(!idFound) {
+						 
+						 System.out.println("User with ID 7 : " + user);
+					 }
 			  }
 			  
-		        if (!idFound) {
-		            System.out.println("User with ID 182 not found in the response.");
-		        }
-		        
-		        response.then().statusCode(200);
-			
+			  int statusCode = response.getStatusCode();
+			     
+			     if(statusCode == 200) {
+			    	 
+			    	 System.out.println("Test case passed");
+			     
+			     } else {
+			    	 
+			    	 System.out.println("The invalid statusCode is : " + response.getStatusCode());
+			     }  
+			  
 		} catch (Exception e) {
 		   
 			System.out.println(e.getMessage());
@@ -91,7 +103,18 @@ public class Testone {
 		         System.out.println("----------------------------");
 			 });
 			 
-			 response.then().statusCode(200);
+           int statusCode = response.getStatusCode();
+		     
+		     if(statusCode == 200) {
+		    	 
+		    	 System.out.println("Test case passed");
+		     
+		     } else {
+		    	 
+		    	 System.out.println("The invalid statusCode is : " + response.getStatusCode());
+		     }
+		     
+		     System.out.println("---> Response JSON Body: " + response.getBody().asString());
 			
 		} catch (Exception e) {
 			
@@ -110,23 +133,31 @@ public class Testone {
 	          
 			 String basePath = "api/users";
 	         
-			 RequestSpecification request = RestAssured.given();
+			 Map<String, Object> map = new HashedMap<String, Object>();
+			 
+			 map.put("first_name", "John");
+			 
+			 map.put("last_name", "Wick");
+			 
+			 RequestSpecification requestSpecification = RestAssured.given()
+					 .contentType(ContentType.JSON).body(map);
 	         
-			 JSONObject requestParams = new JSONObject();// JSON Object Creation
-	         
-			 requestParams.put("name", "John"); // Adding the information as key-value pair in the JSON
-	         
-			 requestParams.put("job", "tester");
-	         
-			 request.body(requestParams);
-	         
-			 request.header("Content-Type", "application/json");
-	         
-			 Response response = request.post(basePath); // here we are hitting the uri
+			 Response response = requestSpecification.post(basePath); // here we are hitting the uri
 	         
 			 System.out.println("\n Status Code: " + response.getStatusCode()); // Response status code is printed here 
 	         
 			 System.out.println("---> Response JSON Body: " + response.getBody().asString());
+			 
+           int statusCode = response.getStatusCode();
+		     
+		     if(statusCode == 201) {
+		    	 
+		    	 System.out.println("Test case passed");
+		     
+		     } else {
+		    	 
+		    	 System.out.println("The invalid statusCode is : " + response.getStatusCode());
+		     }
 			  
 		} catch (Exception e) {
 			
@@ -136,18 +167,76 @@ public class Testone {
 		return null;
 	}
 	
+	
+	public String updateById() {
+		
+		try {
+			
+			RestAssured.baseURI = "https://reqres.in/api";
+			
+			String basePath = "/users/10";
+			
+			Map<String, Object> map = new HashedMap<String, Object>();
+			
+			map.put("first_name", "Moahmmed Imran");
+			
+			map.put("last_name", "Khan");
+			
+			RequestSpecification requestSpecification = RestAssured.given()
+					.contentType(ContentType.JSON).body(map);
+			
+			Response response = requestSpecification.put(basePath);
+			
+            System.out.println("\n Status Code: " + response.getStatusCode()); // Response status code is printed here 
+	         
+			System.out.println("---> Response JSON Body: " + response.getBody().asString());
+			 
+           int statusCode = response.getStatusCode();
+		     
+		     if(statusCode == 200) {
+		    	 
+		    	 System.out.println("Test case passed");
+		     
+		     } else {
+		    	 
+		    	 System.out.println("The invalid statusCode is : " + response.getStatusCode());
+		     }
+			
+		} catch (Exception e) {
+			
+			System.out.println(e.getMessage());
+		}
+		
+		return null;
+	}
+	
 	@Test
-	public void deleteUsers() {
+	public void deleteUserById() {
 		
 		try {
 			
 			RestAssured.baseURI = "https://reqres.in/api/users";
 			
-			String deleteById = "182";
+			String basePath = "7";
 			
-			Response response = RestAssured.given().delete("/users/{id}", deleteById);
+			RequestSpecification requestSpecification = RestAssured.given();
 			
-			response.then().statusCode(200);		
+			Response response = requestSpecification.delete(basePath);
+			
+			 System.out.println("\n Status Code: " + response.getStatusCode()); // Response status code is printed here 
+	         
+				System.out.println("---> Response JSON Body: " + response.getBody().asString());
+				 
+	           int statusCode = response.getStatusCode();
+			     
+			     if(statusCode == 204) {
+			    	 
+			    	 System.out.println("Test case passed");
+			     
+			     } else {
+			    	 
+			    	 System.out.println("The invalid statusCode is : " + response.getStatusCode());
+			     }
 			
 		} catch (Exception e) {
 			
@@ -160,7 +249,7 @@ public class Testone {
 		
 		Testone testOne = new Testone();
 		
-		testOne.getUserById();
+		testOne.getAllUsers();
 	}
 	
 }
