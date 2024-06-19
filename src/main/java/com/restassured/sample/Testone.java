@@ -64,6 +64,7 @@ public class Testone {
 	}
 	
 	
+	@Test
 	public String getAllUsers() {
 		
 		try {
@@ -100,6 +101,7 @@ public class Testone {
 		return null;
 	}
 	
+	@Test
 	public String createUsers() {
 		
 		try {
@@ -134,7 +136,7 @@ public class Testone {
 		return null;
 	}
 	
-	
+	@Test
 	public void deleteUsers() {
 		
 		try {
